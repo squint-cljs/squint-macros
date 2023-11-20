@@ -15,8 +15,10 @@
 (defmacro let [& body]
   `(clojure.core/let ~@body))
 
-(defmacro call-in [obj path & fs]
-  `(.. ~obj ~@(map #(symbol (str "-" (name %))) path) ~@(map list fs)))
+(defmacro call-in [obj path & args]
+  `(let [parent# (clojure.core/get-in ~obj ~(vec (butlast path)))
+         f# (clojure.core/get parent# ~(last path))]
+     (.call f# parent# ~@args)))
 
 (defmacro call [obj f & args]
   (list* (symbol (str "." (name f))) obj args))
